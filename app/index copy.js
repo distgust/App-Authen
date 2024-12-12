@@ -7,9 +7,13 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const mysql = require("mysql")
 
+// you need to create .env before run this
 // env variable 
 require('dotenv').config()
-const { BCRYPT_SALT_ROUND, BCRYPT_SECRET } = process.env
+const {
+    BCRYPT_SALT_ROUND, BCRYPT_SECRET, DB_HOST, DB_PORT, DB_USER,
+    DB_PASS, DB_NAME
+} = process.env
 
 // app express initialize
 const app = express()
@@ -26,20 +30,18 @@ CORS_ALLOW_HEADERS = (
     "ngrok-skip-browser-warning"
 )
 
-
 // jwt & bcrypt
 const saltRound = parseInt(BCRYPT_SALT_ROUND)
 const secret = BCRYPT_SECRET
 
 // import Database Custom Module
 const database = require('../modules/DB')
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_DEV_NAME } = process.env
-
-// pool
+// create pool
 const pool = mysql.createPool({
-    host: `${DB_HOST}`, user: `${DB_USER}`,
-    port: `${DB_PORT}`, database: `${DB_DEV_NAME}`
+    host: `${DB_HOST}`, user: `${DB_USER}`, password: `${DB_PASS}`,
+    port: `${DB_PORT}`, database: `${DB_NAME}`
 })
+
 const DB = new database(pool)
 
 // endpoint
@@ -113,7 +115,7 @@ app.post('/login', jsonParser, async (req, res) => {
                     status: "error", message: "wrong password", data: err
                 })
             } else {
-                let loginData = { username: data[0].user_uname, role:data[0].user_role, id: data[0].user_id }
+                let loginData = { username: data[0].user_uname, role: data[0].user_role, id: data[0].user_id }
                 let token = jwt.sign({
                     exp: Math.floor(Date.now() + 1000 * 60 * 60), data: loginData
                 }, secret)

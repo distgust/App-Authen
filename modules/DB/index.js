@@ -1,4 +1,4 @@
-const mysql = require("mysql")
+const mysql = require("mysql2")
 
 // database method class
 class DB {
@@ -65,6 +65,8 @@ class DB {
         })
     }
 
+
+
     insert_data(tablename, data) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -80,7 +82,7 @@ class DB {
     login(uname) {
         return new Promise(async (resolve, reject) => {
             try {
-                const sql = "SELECT * FROM users_table WHERE user_uname=?";
+                const sql = "SELECT * FROM user_tb WHERE user_uname=?";
                 let login_res = await this.query(sql, uname)
                 // console.log(login_res)
                 resolve(login_res)
@@ -89,8 +91,17 @@ class DB {
             }
         })
     }
+
+    new_user(data) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const created = await this.insert_data("users_tb", data)
+                resolve(created)
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
 }
-
-
 
 module.exports = DB
